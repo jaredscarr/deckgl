@@ -82,7 +82,7 @@ function MyMapComponent({center, zoom}) {
 
 function Root() {
   const center = {lat: 47.60, lng: -122.33};
-  const zoom = 10;
+  const zoom = 8;
 
   return (
     <>
