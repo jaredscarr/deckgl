@@ -5,9 +5,8 @@ import {GeoJsonLayer, ArcLayer} from 'deck.gl';
 import {Wrapper, Status} from '@googlemaps/react-wrapper';
 import {GoogleMapsOverlay as DeckOverlay} from '@deck.gl/google-maps';
 
-// source: Natural Earth http://www.naturalearthdata.com/ via geojson.xyz
-const AIR_PORTS =
-  'https://d2ad6b4ur7yvpq.cloudfront.net/naturalearth-3.3.0/ne_10m_airports.geojson';
+
+const NAT_PARKS = 'https://nationalparkservice.github.io/data/projects/network_to_freedom/public_sites.geojson';
 
 // Set your Google Maps API key here or via environment variable
 const GOOGLE_MAPS_API_KEY = process.env.GoogleMapsAPIKey; // eslint-disable-line
@@ -27,13 +26,13 @@ function MyMapComponent({center, zoom}) {
       new DeckOverlay({
         layers: [
           new GeoJsonLayer({
-            id: 'airports',
-            data: AIR_PORTS,
+            id: 'nat_parks',
+            data: NAT_PARKS,
             // Styles
             filled: true,
             pointRadiusMinPixels: 2,
             pointRadiusScale: 2000,
-            getPointRadius: f => 11 - f.properties.scalerank,
+            getPointRadius: f => 100 - f.properties.Score,
             getFillColor: [200, 0, 80, 180],
             // Interactive props
             pickable: true,
@@ -41,14 +40,14 @@ function MyMapComponent({center, zoom}) {
             onClick: info =>
               info.object &&
               // eslint-disable-next-line
-              alert(`${info.object.properties.name} (${info.object.properties.abbrev})`)
+              alert(`${info.object.properties.Location_Name} (${info.object.properties.X}, ${info.object.properties.Y})`)
           }),
           new ArcLayer({
             id: 'arcs',
-            data: AIR_PORTS,
-            dataTransform: d => d.features.filter(f => f.properties.scalerank < 4),
+            data: NAT_PARKS,
+            dataTransform: d => d.features.filter(f => f.properties.Score < 90), // show parks withs scores > 90
             // Styles
-            getSourcePosition: f => [-0.4531566, 51.4709959], // London
+            getSourcePosition: f => [-75.596037, 39.951913], // Frederick Douglas
             getTargetPosition: f => f.geometry.coordinates,
             getSourceColor: [0, 128, 200],
             getTargetColor: [200, 0, 80],
@@ -81,7 +80,8 @@ function MyMapComponent({center, zoom}) {
 }
 
 function Root() {
-  const center = {lat: 47.60, lng: -122.33};
+  // Center set to Washington, DC
+  const center = {lat: 38.889805, lng: -77.009056};
   const zoom = 8;
 
   return (
